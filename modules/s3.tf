@@ -1,5 +1,5 @@
 resource "aws_iam_role" "replication" {
-  name = "tf-iam-role-cassrepl-${var.cassandra_cluster}"
+  name = "tf-iam-role-${var.cluster_type}repl-${var.db_cluster}"
 
   assume_role_policy = <<POLICY
 {
@@ -19,7 +19,7 @@ POLICY
 }
 
 resource "aws_iam_policy" "replication" {
-  name = "tf-iam-policy-cassrepl-${var.cassandra_cluster}"
+  name = "tf-iam-policy-${var.cluster_type}repl-${var.db_cluster}"
 
   policy = <<POLICY
 {
@@ -65,13 +65,13 @@ resource "aws_iam_role_policy_attachment" "replication" {
 
 
 resource "aws_s3_bucket" "backups" {
-  bucket        = "agovw1-cassandra-${var.cassandra_cluster}-backups"
+  bucket        = "il5-${var.cluster_type}-${var.db_cluster}-backups"
   acl           = "private"
   force_destroy = true
 
   tags = {
-    Name    = "Cassandra ${var.cassandra_cluster} backups"
-    Cluster = var.cassandra_cluster
+    Name    = "${var.cluster_type} ${var.db_cluster} backups"
+    Cluster = var.db_cluster
   }
 
   lifecycle_rule {
@@ -94,7 +94,7 @@ resource "aws_s3_bucket" "backups" {
     role = aws_iam_role.replication.arn
 
     rules {
-      id     = "replication-config-${var.cassandra_cluster}"
+      id     = "replication-config-${var.db_cluster}"
       prefix = ""
       status = "Enabled"
 
@@ -118,13 +118,13 @@ data "aws_kms_alias" "s3" {
 }
 resource "aws_s3_bucket" "backup_remote" {
   provider = aws.backup_region
-  bucket        = "agovw1-cassandra-${var.cassandra_cluster}-backups-remote"
+  bucket        = "il5-${var.cluster_type}-${var.db_cluster}-backups-remote"
   acl           = "private"
   force_destroy = true
 
   tags = {
-    Name    = "Cassandra ${var.cassandra_cluster} backups"
-    Cluster = var.cassandra_cluster
+    Name    = "${var.cluster_type} ${var.db_cluster} backups"
+    Cluster = var.db_cluster
   }
   versioning {
     enabled = true

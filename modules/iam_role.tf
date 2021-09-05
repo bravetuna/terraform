@@ -1,6 +1,6 @@
-resource "aws_iam_role_policy" "cassandra_configuration" {
-  name = "${var.cassandra_cluster}-cassandra-role-policy"
-  role = aws_iam_role.cassandra_configuration.id
+resource "aws_iam_role_policy" "db_configuration" {
+  name = "${var.db_cluster}-${var.cluster_type}-role-policy"
+  role = aws_iam_role.db_configuration.id
 
   policy = <<EOF
 {
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy" "cassandra_configuration" {
     {
       "Effect": "Allow",
       "Action": ["s3:ListBucket"],
-      "Resource": ["arn:aws:s3:::agovw1-cassandra-${var.cassandra_cluster}-backups"]
+      "Resource": ["arn:aws:s3:::il5-${var.cluster_type}-${var.db_cluster}-backups"]
     },
     {
       "Effect": "Allow",
@@ -35,7 +35,7 @@ resource "aws_iam_role_policy" "cassandra_configuration" {
         "s3:DeleteObject",
         "s3:ListObject"
       ],
-      "Resource": ["arn:aws:s3:::agovw1-cassandra-${var.cassandra_cluster}-backups/*"]
+      "Resource": ["arn:aws:s3:::il5-${var.cluster_type}-${var.db_cluster}-backups/*"]
     },
     {
       "Action": [
@@ -52,8 +52,8 @@ resource "aws_iam_role_policy" "cassandra_configuration" {
 EOF
 }
 
-resource "aws_iam_role" "cassandra_configuration" {
-  name = "${var.cassandra_cluster}-cassandra-role"
+resource "aws_iam_role" "db_configuration" {
+  name = "${var.db_cluster}-${var.cluster_type}-role"
 
   assume_role_policy = <<EOF
 {
@@ -71,3 +71,19 @@ resource "aws_iam_role" "cassandra_configuration" {
 }
 EOF
 }
+
+resource "aws_iam_role_policy_attachment" "ssm1-attach" {
+  role = aws_iam_role.db_configuration.id
+#  role       = aws_iam_role.role.name
+#  policy_arn = aws_iam_policy.policy.arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm2-attach" {
+  role = aws_iam_role.db_configuration.id
+#  role       = aws_iam_role.role.name
+#  policy_arn = aws_iam_policy.policy.arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMPatchAssociation"
+}
+
+

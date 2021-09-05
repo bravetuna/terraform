@@ -1,0 +1,30 @@
+module "analytics" {
+  source                           = "./modules"
+  region                           = var.aws_region
+  availability_zones               = var.db_availability_zones
+  #s3_remote_backup_region          = var.s3_remote_backup_region
+  db_subnets                = var.meetings_db_subnets
+  db_nodes                        =  1
+  db_cluster                = "analytics"
+  function_type                    = "meetings"
+  cluster_type                     = var.cluster_type
+  db_deployer_key_name      = var.db_deployer_key_name
+  vpc_id                           = var.meetings_vpc_id
+  db_ami                    = "ami-0686851c4e7b1a8e1"
+  db_instance_type          = "t2.micro"
+  db_root_block_device_size = 20
+  zone_id                          = "Z0177144JRGBUNGWTRDE"
+  zone_name                        = var.db_zone_name
+  data_disk_size                   = 25
+  data_disk_type                   = var.data_disk_type
+  data_disk_iops                   = var.data_disk_iops
+  bastion_sg_id         = var.bastion_sg_id
+  db_ingress_ports                 = var.db_ingress_ports
+  #sg_tfe_id                   = data.terraform_remote_state.networking.outputs.sg_ssh_from_tfe["app"].id
+  #sg_ansible_ssh        = data.terraform_remote_state.networking.outputs.sg_ssh_from_jenkins["app"].id
+  #sg_bastion_id         = data.terraform_remote_state.networking.outputs.sg_ssh_from_bastion["app"].id
+  #acm_arn               = data.terraform_remote_state.admin_bootstrap.outputs.private_rootca_arn
+  acm_arn               = "abc"
+  private_key_file_path = "/il5/oliver12_private_key"
+}
+

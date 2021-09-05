@@ -1,5 +1,5 @@
-resource "aws_sns_topic" "alarm_cassandra" {
-  name = "alarms-topic-cassandra"
+resource "aws_sns_topic" "alarm_db" {
+  name = "alarms-topic-${var.cluster_type}"
   delivery_policy = <<EOF
 {
   "http": {
@@ -20,28 +20,10 @@ resource "aws_sns_topic" "alarm_cassandra" {
 }
 EOF
 
-#  provisioner "local-exec" {
-#    command = "aws sns subscribe --topic-arn ${self.arn} --protocol email --notification-endpoint ${var.alarms_email} --region ${var.region}"
-#  }
 }
 
-/*
-resource "aws_cloudwatch_metric_alarm" "cassandra_CPU" {
-  alarm_name                = "health-alarm-cassandra-${var.cassandra_cluster}-${count.index+ 1}"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "2"
-  metric_name               = "CPUUtilization"
-  namespace                 = "AWS/EC2"
-  period                    = "120"
-  statistic                 = "Average"
-  threshold                 = "80"
-  alarm_description         = "This metric monitors ec2 cpu utilization"
-  insufficient_data_actions = []
-}
-*/
-
-resource "aws_cloudwatch_metric_alarm" "health_cassandra" {
-  alarm_name                = "health-alarm-cassandra-${var.cassandra_cluster}-${count.index+ 1}"
+resource "aws_cloudwatch_metric_alarm" "health_db" {
+  alarm_name                = "health-alarm-${var.cluster_type}-${var.db_cluster}-${count.index+ 1}"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   metric_name               = "CPUUtilization"
@@ -50,15 +32,15 @@ resource "aws_cloudwatch_metric_alarm" "health_cassandra" {
   statistic                 = "Average"
   threshold                 = "80"
   alarm_description         = "This metric monitors ec2 health status"
-  alarm_actions             = [ "${aws_sns_topic.alarm_cassandra.arn}" ]
-  count = var.cassandra_nodes
+  alarm_actions             = [ "${aws_sns_topic.alarm_db.arn}" ]
+  count = var.db_nodes
   dimensions = {
-     InstanceId = aws_instance.cassandra_nodes.*.id[count.index]
+     InstanceId = aws_instance.nodes.*.id[count.index]
   }
 }
 
 resource "aws_sns_topic_subscription" "email-target" {
-  topic_arn = "${aws_sns_topic.alarm_cassandra.arn}"
+  topic_arn = "${aws_sns_topic.alarm_db.arn}"
   protocol  = "email"
   endpoint  = "syu@tropo.com"
 }

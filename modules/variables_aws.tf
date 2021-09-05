@@ -1,42 +1,55 @@
-variable "cassandra_ami" {
-  default = "ami-07f9fd4d008b06434"
+variable "db_ami" {
+  default = "ami-07c3d21e3451949dd"
 }
-variable "cassandra_ami_override" {
+
+variable "db_ami_override" {
   type = map
   default = {}
 }
 
-variable "cassandra_root_block_device_size" {
+variable "data_disk_size" {
+  type = number
+}
+
+variable "data_disk_type" {
+  type = string
+}
+
+variable "data_disk_iops" {
+  type = number
+}
+
+variable "db_root_block_device_size" {
   type = number
   default = 8
 }
-variable "cassandra_root_block_device_size_override" {
+variable "db_root_block_device_size_override" {
   type = map
   default = {}
 }
 
 variable "region" {
-  default = "us-east-1"
+  default = "us-west-2"
 }
 
 
 variable "availability_zones" {
   default = [
-    "us-west-1a",
-    "us-west-1b",
+    "us-west-2a",
+    "us-west-2b",
+    "us-west-2c",
   ]
 }
 
-variable "cassandra_instance_type" {
+variable "db_instance_type" {
   default = "t2.micro"
 }
 
-variable "cassandra_seeds" { type=number }
-variable "cassandra_nodes" { type=number }
-variable "cassandra_cluster" { type=string }
+variable "db_nodes" { type=number }
+variable "db_cluster" { type=string }
 
-variable "cassandra_deployer_key_name" { type=string }
-variable "cassandra_deployer_key_name_override" {
+variable "db_deployer_key_name" { type=string }
+variable "db_deployer_key_name_override" {
   type = map
   default = {}
 }
@@ -49,14 +62,17 @@ variable "zone_name" {
   description = "The private DNS zone name to create records for hosts"
   default = "wbx12.net"
 }
-variable "sg_bastion_id" {
-  default = "sg-554a2b1d"
+
+variable "bastion_sg_id" {
+  type = string
 }
+
 variable "sg_tfe_id"{
-  default = "sg-554a2b1d"
+  default = "sg-0106fe5aaf0749f68"
 }
+
 variable "sg_ansible_ssh"{
-  default = "sg-554a2b1d"
+  default = "sg-0106fe5aaf0749f68"
 }
 
 variable "acm_arn" {}
@@ -66,14 +82,24 @@ variable "provisioning_user" {
   default = "ubuntu"
 }
 
-variable "cassandra_subnets"{
+variable "db_subnets"{
   description = ""
   type = map
   default = {}
 }
 
-variable "vpc_id" {
-  default = "vpc-55f72a33"
+variable "db_ingress_ports"{
+  description = ""
+  type = map
+  default = {}
+}
+
+variable "meetings_vpc_id" {
+  default = "vpc-008e9e908621b8506"
+}
+
+variable "messages_vpc_id" {
+  default = "vpc-0a6944105f5f65d49"
 }
 
 variable "private_key_file_path" {
@@ -87,6 +113,16 @@ variable "private_key_file_path_override" {
 
 variable "ebs_optimized" {
   default = "false"
+}
+
+variable "function_type" {
+# meetings or messages
+  type = string
+}
+
+variable "cluster_type" {
+# mysql or postgres or redis
+  type = string
 }
 
 variable "alarms_email" {
