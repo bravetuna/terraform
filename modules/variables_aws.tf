@@ -1,22 +1,26 @@
 variable "db_ami" {
-  default = "ami-07c3d21e3451949dd"
+  type = string
+}
+
+variable "db_os" {
+  type = string
+}
+
+variable "owner_contact" {
+  type = string
+}
+
+variable "owner_group" {
+  type = string
+}
+
+variable "microservice" {
+  type = string
 }
 
 variable "db_ami_override" {
   type = map
   default = {}
-}
-
-variable "data_disk_size" {
-  type = number
-}
-
-variable "data_disk_type" {
-  type = string
-}
-
-variable "data_disk_iops" {
-  type = number
 }
 
 variable "db_root_block_device_size" {
@@ -47,6 +51,7 @@ variable "db_instance_type" {
 
 variable "db_nodes" { type=number }
 variable "db_cluster" { type=string }
+variable "cluster_environment" { type=string }
 
 variable "db_deployer_key_name" { type=string }
 variable "db_deployer_key_name_override" {
@@ -129,4 +134,19 @@ variable "alarms_email" {
   type = string
   default = "samuyu@cisco.com"
 #  default = "sd_collabs@ciscospark.pagerduty.com"
+}
+
+variable "ebs_volume_1" {
+  type = map
+  default = {}
+}
+
+variable "ebs_volume_2" {
+  type = map
+  default = {}
+}
+
+variable "ebs_volume_3" {
+  type = map
+  default = {}
 }

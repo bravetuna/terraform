@@ -1,4 +1,6 @@
 resource "aws_sns_topic" "alarm_db" {
+  count = var.db_nodes
+
   name = "alarms-topic-${var.cluster_type}"
   delivery_policy = <<EOF
 {
@@ -32,7 +34,7 @@ resource "aws_cloudwatch_metric_alarm" "health_db" {
   statistic                 = "Average"
   threshold                 = "80"
   alarm_description         = "This metric monitors ec2 health status"
-  alarm_actions             = [ "${aws_sns_topic.alarm_db.arn}" ]
+  alarm_actions             = [aws_sns_topic.alarm_db[count.index].arn]
   count = var.db_nodes
   dimensions = {
      InstanceId = aws_instance.nodes.*.id[count.index]
@@ -40,7 +42,9 @@ resource "aws_cloudwatch_metric_alarm" "health_db" {
 }
 
 resource "aws_sns_topic_subscription" "email-target" {
-  topic_arn = "${aws_sns_topic.alarm_db.arn}"
+  count = var.db_nodes
+
+  topic_arn = aws_sns_topic.alarm_db[count.index].arn
   protocol  = "email"
   endpoint  = "syu@tropo.com"
 }

@@ -1,6 +1,7 @@
 resource "aws_iam_role_policy" "db_configuration" {
   name = "${var.db_cluster}-${var.cluster_type}-role-policy"
-  role = aws_iam_role.db_configuration.id
+  count = var.db_nodes > 0 ? 1 : 0
+  role = aws_iam_role.db_configuration[count.index].id
 
   policy = <<EOF
 {
@@ -24,23 +25,19 @@ resource "aws_iam_role_policy" "db_configuration" {
     },
     {
       "Effect": "Allow",
-      "Action": ["s3:ListBucket"],
+      "Action": ["s3:*"],
       "Resource": ["arn:aws:s3:::il5-${var.cluster_type}-${var.db_cluster}-backups"]
     },
     {
       "Effect": "Allow",
       "Action": [
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:DeleteObject",
-        "s3:ListObject"
+        "s3:*"
       ],
       "Resource": ["arn:aws:s3:::il5-${var.cluster_type}-${var.db_cluster}-backups/*"]
     },
     {
       "Action": [
-        "ec2:DescribeInstances",
-        "ec2:DescribeTags",
+        "ec2:Describe*",
         "autoscaling:DescribeAutoScalingGroups",
         "cloudwatch:Describe"
       ],
@@ -54,6 +51,7 @@ EOF
 
 resource "aws_iam_role" "db_configuration" {
   name = "${var.db_cluster}-${var.cluster_type}-role"
+  count = var.db_nodes > 0 ? 1 : 0
 
   assume_role_policy = <<EOF
 {
@@ -71,19 +69,3 @@ resource "aws_iam_role" "db_configuration" {
 }
 EOF
 }
-
-resource "aws_iam_role_policy_attachment" "ssm1-attach" {
-  role = aws_iam_role.db_configuration.id
-#  role       = aws_iam_role.role.name
-#  policy_arn = aws_iam_policy.policy.arn
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_role_policy_attachment" "ssm2-attach" {
-  role = aws_iam_role.db_configuration.id
-#  role       = aws_iam_role.role.name
-#  policy_arn = aws_iam_policy.policy.arn
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMPatchAssociation"
-}
-
-
